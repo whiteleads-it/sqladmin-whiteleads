@@ -63,22 +63,22 @@ class QueryAjaxModelLoader:
 
     async def get_list(self, term: str) -> list[Any]:
         stmt = select(self.model)
-
-        # no type casting to string if a ColumnAssociationProxyInstance is given
-        filters = [
-            cast(field, String).ilike("%%%s%%" % term) for field in self._cached_fields
-        ]
-
-        stmt = stmt.filter(or_(*filters))
-
-        if self.order_by:
-            if isinstance(self.order_by, list):
-                for o in self.order_by:
-                    stmt = stmt.order_by(o)
-            else:
-                stmt = stmt.order_by(self.order_by)
-
-        stmt = stmt.limit(self.limit)
+        if term is not None:
+            filters = [
+                cast(field, String).ilike(f"%{term}%")
+                for field in self._cached_fields
+            ]
+            stmt = stmt.filter(or_(*filters))
+        if hasattr(self, 'condition') and self.condition is not None:
+            condition = self.condition if isinstance(self.condition, list) else [self.condition]
+            for cond in condition:
+                stmt = stmt.where(cond)
+        if hasattr(self, 'order_by'):
+            order_by = self.order_by if isinstance(self.order_by, list) else [self.order_by]
+            for o in order_by:
+                stmt = stmt.order_by(o)
+        if hasattr(self, 'limit'):
+            stmt = stmt.limit(self.limit)
         result = await self.model_admin._run_query(stmt)
         return result
 

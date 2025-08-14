@@ -671,8 +671,9 @@ class Admin(BaseAdminView):
             loader: QueryAjaxModelLoader = model_view._form_ajax_refs[name]
         except KeyError:
             raise HTTPException(status_code=400)
-
-        data = [loader.format(m) for m in await loader.get_list(term)]
+        none_data = [{'id': '__None', 'text': '–'}]
+        data = [loader.format(m) for m in await loader.get_list(term)] if term else [loader.format(m) for m in await loader.get_list("")]
+        data = none_data + data
         return JSONResponse({"results": data})
 
     def get_save_redirect_url(

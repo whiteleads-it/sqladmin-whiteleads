@@ -283,7 +283,7 @@ class ModelConverterBase:
     async def convert(
         self,
         model: type,
-        prop: MODEL_PROPERTY,
+        prop: ColumnProperty,
         session_maker: sessionmaker,
         field_args: dict[str, Any],
         field_widget_args: dict[str, Any],
