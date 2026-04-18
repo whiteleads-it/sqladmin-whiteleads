@@ -50,8 +50,6 @@ __all__ = [
     "action",
 ]
 
-logger = logging.getLogger(__name__)
-
 
 class BaseAdmin:
     """Base class for implementing Admin interface.
@@ -382,6 +380,7 @@ class Admin(BaseAdminView):
             middlewares=middlewares,
             authentication_backend=authentication_backend,
         )
+        self.logger = logging.getLogger("sqladmin")
 
         statics = StaticFiles(packages=["sqladmin"])
 
@@ -544,7 +543,7 @@ class Admin(BaseAdminView):
         try:
             obj = await model_view.insert_model(request, form_data_dict)
         except Exception as e:
-            logger.exception(e)
+            self.logger.exception(e)
             context["error"] = str(e)
             return await self.templates.TemplateResponse(
                 request, model_view.create_template, context, status_code=400
@@ -600,7 +599,7 @@ class Admin(BaseAdminView):
                     request, pk=request.path_params["pk"], data=form_data_dict
                 )
         except Exception as e:
-            logger.exception(e)
+            self.logger.exception(e)
             context["error"] = str(e)
             return await self.templates.TemplateResponse(
                 request, model_view.edit_template, context, status_code=400
