@@ -35,13 +35,13 @@ from starlette.responses import StreamingResponse
 from wtforms import Field, Form
 from wtforms.fields.core import UnboundField
 
-from sqladmin._queries import Query
-from sqladmin._types import MODEL_ATTR, ColumnFilter
-from sqladmin.ajax import create_ajax_loader
-from sqladmin.exceptions import InvalidModelError
-from sqladmin.formatters import BASE_FORMATTERS
-from sqladmin.forms import ModelConverter, ModelConverterBase, get_model_form
-from sqladmin.helpers import (
+from sqladmin_whiteleads._queries import Query
+from sqladmin_whiteleads._types import MODEL_ATTR, ColumnFilter
+from sqladmin_whiteleads.ajax import create_ajax_loader
+from sqladmin_whiteleads.exceptions import InvalidModelError
+from sqladmin_whiteleads.formatters import BASE_FORMATTERS
+from sqladmin_whiteleads.forms import ModelConverter, ModelConverterBase, get_model_form
+from sqladmin_whiteleads.helpers import (
     Writer,
     get_object_identifier,
     get_primary_keys,
@@ -53,13 +53,13 @@ from sqladmin.helpers import (
 )
 
 # stream_to_csv,
-from sqladmin.pagination import Pagination
-from sqladmin.templating import Jinja2Templates
+from sqladmin_whiteleads.pagination import Pagination
+from sqladmin_whiteleads.templating import Jinja2Templates
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
 
-    from sqladmin.application import BaseAdmin
+    from sqladmin_whiteleads.application import BaseAdmin
 
 __all__ = [
     "BaseView",
@@ -843,7 +843,6 @@ class ModelView(BaseView, metaclass=ModelViewMeta):
                 )
 
         stmt = self.sort_query(stmt, request)
-
         if search:
             stmt = self.search_query(stmt=stmt, term=search)
             count = await self.count(request, select(func.count()).select_from(stmt))
@@ -1110,7 +1109,6 @@ class ModelView(BaseView, metaclass=ModelViewMeta):
         return stmt.filter(MyModel.name == term)
         ```
         """
-
         expressions = []
         for field in self._search_fields:
             model = self.model

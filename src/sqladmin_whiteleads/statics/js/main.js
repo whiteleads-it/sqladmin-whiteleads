@@ -85,7 +85,7 @@ $(':input[data-role="datetimepicker"]:not([readonly])').each(function () {
 // Ajax Refs
 $(':input[data-role="select2-ajax"]').each(function () {
   $(this).select2({
-    minimumInputLength: 1,
+    minimumInputLength: 0,
     ajax: {
       url: $(this).data("url"),
       dataType: 'json',

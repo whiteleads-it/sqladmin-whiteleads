@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import inspect
 import io
-import logging
 from types import MethodType
 from typing import (
     TYPE_CHECKING,
@@ -28,18 +27,18 @@ from starlette.responses import JSONResponse, RedirectResponse, Response
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
-from sqladmin._menu import CategoryMenu, Menu, ViewMenu
-from sqladmin._types import ENGINE_TYPE
-from sqladmin.ajax import QueryAjaxModelLoader
-from sqladmin.authentication import AuthenticationBackend, login_required
-from sqladmin.forms import WTFORMS_ATTRS, WTFORMS_ATTRS_REVERSED
-from sqladmin.helpers import (
+from sqladmin_whiteleads._menu import CategoryMenu, Menu, ViewMenu
+from sqladmin_whiteleads._types import ENGINE_TYPE
+from sqladmin_whiteleads.ajax import QueryAjaxModelLoader
+from sqladmin_whiteleads.authentication import AuthenticationBackend, login_required
+from sqladmin_whiteleads.forms import WTFORMS_ATTRS, WTFORMS_ATTRS_REVERSED
+from sqladmin_whiteleads.helpers import (
     get_object_identifier,
     is_async_session_maker,
     slugify_action_name,
 )
-from sqladmin.models import BaseView, ModelView
-from sqladmin.templating import Jinja2Templates
+from sqladmin_whiteleads.models import BaseView, ModelView
+from sqladmin_whiteleads.templating import Jinja2Templates
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -104,7 +103,7 @@ class BaseAdmin:
         templates = Jinja2Templates("templates")
         loaders = [
             FileSystemLoader(self.templates_dir),
-            PackageLoader("sqladmin", "templates"),
+            PackageLoader("sqladmin_whiteleads", "templates"),
         ]
 
         templates.env.loader = ChoiceLoader(loaders)
@@ -380,9 +379,9 @@ class Admin(BaseAdminView):
             middlewares=middlewares,
             authentication_backend=authentication_backend,
         )
-        self.logger = logging.getLogger("sqladmin")
+        self.logger = logging.getLogger("sqladmin_whiteleads")
 
-        statics = StaticFiles(packages=["sqladmin"])
+        statics = StaticFiles(packages=["sqladmin_whiteleads"])
 
         async def http_exception(
             request: Request, exc: Exception
@@ -430,7 +429,6 @@ class Admin(BaseAdminView):
             Route("/login", endpoint=self.login, name="login", methods=["GET", "POST"]),
             Route("/logout", endpoint=self.logout, name="logout", methods=["GET"]),
         ]
-
         self.admin.router.routes = routes
         self.admin.exception_handlers = {HTTPException: http_exception}
         self.admin.debug = debug
@@ -656,21 +654,16 @@ class Admin(BaseAdminView):
 
     async def ajax_lookup(self, request: Request) -> Response:
         """Ajax lookup route."""
-
         identity = request.path_params["identity"]
         model_view = self._find_model_view(identity)
 
         name = request.query_params.get("name")
-        term = request.query_params.get("term")
-
-        if not name or not term:
-            raise HTTPException(status_code=400)
-
+        term = request.query_params.get("term", "")
         try:
             loader: QueryAjaxModelLoader = model_view._form_ajax_refs[name]
         except KeyError:
             raise HTTPException(status_code=400)
-        none_data = [{'id': '__None', 'text': '–'}]
+        none_data = [{'id': '__None', 'text': '—'}]
         data = [loader.format(m) for m in await loader.get_list(term)] if term else [loader.format(m) for m in await loader.get_list("")]
         data = none_data + data
         return JSONResponse({"results": data})

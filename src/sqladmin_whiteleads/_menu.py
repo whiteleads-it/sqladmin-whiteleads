@@ -6,7 +6,7 @@ from starlette.datastructures import URL
 from starlette.requests import Request
 
 if TYPE_CHECKING:
-    from sqladmin.application import BaseView, ModelView
+    from sqladmin_whiteleads.application import BaseView, ModelView
 
 
 class ItemMenu:

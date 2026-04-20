@@ -6,9 +6,9 @@ from typing import Any, Callable, Generator
 
 from wtforms import Form, ValidationError, fields, widgets
 
-from sqladmin import widgets as sqladmin_widgets
-from sqladmin.ajax import QueryAjaxModelLoader
-from sqladmin.helpers import get_object_identifier, parse_interval
+from sqladmin_whiteleads import widgets as sqladmin_widgets
+from sqladmin_whiteleads.ajax import QueryAjaxModelLoader
+from sqladmin_whiteleads.helpers import get_object_identifier, parse_interval
 
 __all__ = [
     "AjaxSelectField",
@@ -143,7 +143,6 @@ class QuerySelectField(fields.SelectFieldBase):
         **kwargs: Any,
     ) -> None:
         super().__init__(label=label, validators=validators, **kwargs)
-
         self._select_data = data or []
 
         if get_label is None:
@@ -296,7 +295,8 @@ class AjaxSelectField(fields.SelectFieldBase):
         loader: QueryAjaxModelLoader,
         label: str | None = None,
         validators: list | None = None,
-        allow_blank: bool = False,
+        allow_blank: bool = True,
+        blank_text: str = "",
         **kwargs: Any,
     ) -> None:
         kwargs.pop("data", None)  # Handled by JS side

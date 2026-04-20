@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import String, cast, inspect, or_, select
 
-from sqladmin.helpers import get_object_identifier, get_primary_keys
+from sqladmin_whiteleads.helpers import get_object_identifier, get_primary_keys
 
 if TYPE_CHECKING:
-    from sqladmin.models import ModelView
+    from sqladmin_whiteleads.models import ModelView
 
 
-DEFAULT_PAGE_SIZE = 10
+DEFAULT_PAGE_SIZE = 100
 
 
 class QueryAjaxModelLoader:
@@ -27,7 +27,7 @@ class QueryAjaxModelLoader:
         self.fields = options.get("fields", {})
         self.order_by = options.get("order_by")
         self.limit = options.get("limit", DEFAULT_PAGE_SIZE)
-
+        self.condition = options.get("condition", None)
         pks = get_primary_keys(self.model)
         self.pk = pks[0] if len(pks) == 1 else None
 
@@ -36,7 +36,6 @@ class QueryAjaxModelLoader:
                 "AJAX loading requires `fields` to be specified for "
                 f"{self.model}.{self.name}"
             )
-
         self._cached_fields = self._process_fields()
 
     def _process_fields(self) -> list:
@@ -48,7 +47,6 @@ class QueryAjaxModelLoader:
 
                 if not attr:
                     raise ValueError(f"{self.model}.{field} does not exist.")
-
                 remote_fields.append(attr)
             else:
                 remote_fields.append(field)
@@ -90,11 +88,9 @@ def create_ajax_loader(
     options: dict,
 ) -> QueryAjaxModelLoader:
     mapper = inspect(model_admin.model)
-
     try:
         attr = mapper.relationships[name]
     except KeyError:
         raise ValueError(f"{model_admin.model}.{name} is not a relation.")
-
     remote_model = attr.mapper.class_
     return QueryAjaxModelLoader(name, remote_model, model_admin, **options)

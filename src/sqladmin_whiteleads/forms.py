@@ -38,16 +38,16 @@ from wtforms import (
 )
 from wtforms.fields.core import UnboundField
 
-from sqladmin._types import MODEL_PROPERTY
-from sqladmin._validators import (
+from sqladmin_whiteleads._types import MODEL_PROPERTY
+from sqladmin_whiteleads._validators import (
     ColorValidator,
     CurrencyValidator,
     PhoneNumberValidator,
     TimezoneValidator,
 )
-from sqladmin.ajax import QueryAjaxModelLoader
-from sqladmin.exceptions import NoConverterFound
-from sqladmin.fields import (
+from sqladmin_whiteleads.ajax import QueryAjaxModelLoader
+from sqladmin_whiteleads.exceptions import NoConverterFound
+from sqladmin_whiteleads.fields import (
     AjaxSelectField,
     AjaxSelectMultipleField,
     DateField,
@@ -60,13 +60,14 @@ from sqladmin.fields import (
     Select2TagsField,
     SelectField,
 )
-from sqladmin.helpers import (
+from sqladmin_whiteleads.helpers import (
     choice_type_coerce_factory,
     get_direction,
     get_object_identifier,
     is_async_session_maker,
     is_relationship,
 )
+
 
 if sys.version_info >= (3, 8):
     from typing import Protocol
@@ -128,7 +129,7 @@ class ModelConverterBase:
 
     async def _prepare_kwargs(
         self,
-        prop: MODEL_PROPERTY,
+        prop: ColumnProperty,
         session_maker: sessionmaker,
         field_args: dict[str, Any],
         field_widget_args: dict[str, Any],
@@ -150,7 +151,6 @@ class ModelConverterBase:
         kwargs.setdefault("default", None)
         kwargs.setdefault("description", prop.doc)
         kwargs.setdefault("render_kw", widget_args)
-
         if isinstance(prop, ColumnProperty):
             kwargs = self._prepare_column(
                 prop=prop, kwargs=kwargs, form_include_pk=form_include_pk
@@ -213,9 +213,10 @@ class ModelConverterBase:
         for pair in prop.local_remote_pairs:
             if not pair[0].nullable:
                 nullable = False
-
         kwargs["allow_blank"] = nullable
-
+        kwargs.setdefault(
+                "data", await self._prepare_select_options(prop, session_maker)
+            )
         if not loader:
             kwargs.setdefault(
                 "data", await self._prepare_select_options(prop, session_maker)
@@ -230,7 +231,6 @@ class ModelConverterBase:
     ) -> list[tuple[str, Any]]:
         target_model = prop.mapper.class_
         stmt = select(target_model)
-
         if is_async_session_maker(session_maker):
             async with session_maker() as session:
                 objects = await session.execute(stmt)
@@ -315,7 +315,6 @@ class ModelConverterBase:
             and prop.direction.name in ("ONETOMANY", "MANYTOMANY")
             and prop.uselist
         )
-
         if loader:
             if multiple:
                 return AjaxSelectMultipleField(loader, **kwargs)
@@ -646,5 +645,4 @@ async def get_model_form(
         if field is not None:
             field_dict_key = WTFORMS_ATTRS.get(name, name)
             field_dict[field_dict_key] = field
-
     return type(type_name, (form_class,), field_dict)

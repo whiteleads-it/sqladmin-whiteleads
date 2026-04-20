@@ -5,7 +5,7 @@ from sqlalchemy import Integer
 from sqlalchemy.sql.expression import Select, select
 from starlette.requests import Request
 
-from sqladmin._types import MODEL_ATTR
+from sqladmin_whiteleads._types import MODEL_ATTR
 
 
 def get_parameter_name(column: MODEL_ATTR) -> str:

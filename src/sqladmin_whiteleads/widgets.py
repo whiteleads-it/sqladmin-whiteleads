@@ -5,6 +5,7 @@ from markupsafe import Markup
 from wtforms import Field, widgets
 from wtforms.widgets import html_params
 
+
 __all__ = [
     "AjaxSelect2Widget",
     "DatePickerWidget",
@@ -37,14 +38,13 @@ class AjaxSelect2Widget(widgets.Select):
     def __init__(self, multiple: bool = False):
         self.multiple = multiple
         self.lookup_url = ""
-
     def __call__(self, field: Field, **kwargs: Any) -> Markup:
         kwargs.setdefault("data-role", "select2-ajax")
         kwargs.setdefault("data-url", field.loader.model_admin.ajax_lookup_url)
-
-        allow_blank = getattr(field, "allow_blank", False)
-        if allow_blank and not self.multiple:
+        allow_blank = getattr(field, "allow_blank", True)
+        if allow_blank:
             kwargs["data-allow-blank"] = "1"
+            kwargs.setdefault("data-placeholder", getattr(field, "blank_text", "–"))
 
         kwargs.setdefault("id", field.id)
         kwargs.setdefault("type", "hidden")
