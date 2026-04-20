@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqladmin_whiteleads"
-version = "1.4.0.10"
+version = "1.4.0.11"
 dependencies = [
   "starlette",
   "sqlalchemy >=1.4",
