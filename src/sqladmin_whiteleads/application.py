@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import io
+import logging
 from types import MethodType
 from typing import (
     TYPE_CHECKING,
